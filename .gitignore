@@ -1,2 +1,4 @@
 /__pycache__
 /sprites/__pycache__
+*.pyc
+*.pyc
