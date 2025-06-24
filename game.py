@@ -8,117 +8,136 @@ from sprites.enemy import Enemy
 from level import Level
 
 class Game:
-    """Основной класс игры"""
+    """Головний клас гри"""
     def __init__(self):
         pygame.init()
         
-        # Создание окна
+        # Створення вікна
         self.window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Game")
         
-        # Загрузка фоновых изображений
+        # Завантаження фонових зображень
         self.bg = ResourceManager.load_image(BG_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.win_image = ResourceManager.load_image(WIN_IMAGE, (500, 300))
         self.lose_image = ResourceManager.load_image(LOSE_IMAGE, (500, 300))
         self.win_fon = ResourceManager.load_image(WIN_FON_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.lose_fon = ResourceManager.load_image(LOSE_FON_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
         
-        # Создание часов для контроля FPS
+        # Створення годинника для контролю FPS
         self.clock = pygame.time.Clock()
         
-        # Загрузка анимаций
+        # Завантаження анімацій
         self.player_anims = load_player_animations()
         self.enemy_anims = load_enemy_animations()
         self.tips = load_tips()
         
-        # Создание уровня
+        # Створення рівня
         self.level = Level()
         self.level.create_barriers()
         self.level.create_level_objects(self.tips)
         
-        # Создание игрока
+        # Створення гравця
         self.hero = Player("Finals/hero/stay/r_stay.png", PLAYER_SIZE[0], PLAYER_SIZE[1], 
                            10, 220, 0, 0, self.player_anims)
         
-        # Создание врага
+        # Створення ворога
         self.skeleton = Enemy('Finals/enemy/up/u_run_1.png', ENEMY_SIZE[0], ENEMY_SIZE[1], 
                               180, 185, 0, 0, self.enemy_anims)
         self.level.monsters.add(self.skeleton)
         
-        # Игровое состояние
+        # Ігровий стан
         self.running = True
         self.finish = False
         
+        # Стан клавіш для плавного керування
+        self.keys_pressed = {
+            K_w: False,
+            K_s: False,
+            K_a: False,
+            K_d: False
+        }
+        
     def handle_events(self):
-        """Обработка событий игры"""
+        """Обробка подій гри"""
         for e in pygame.event.get():
             if e.type == QUIT:
                 self.running = False
             
-            # Обработка нажатий клавиш
+            # Обробка натискань клавіш
             if e.type == KEYDOWN:
-                if e.key == K_w:
-                    self.hero.start_up_run()
-                if e.key == K_s:
-                    self.hero.start_down_run()
-                if e.key == K_a:
-                    self.hero.start_left_run()
-                if e.key == K_d:
-                    self.hero.start_right_run()
+                # Рух
+                if e.key == K_w and not self.keys_pressed[K_w]:
+                    self.keys_pressed[K_w] = True
+                    self.hero.start_up_move()
+                if e.key == K_s and not self.keys_pressed[K_s]:
+                    self.keys_pressed[K_s] = True
+                    self.hero.start_down_move()
+                if e.key == K_a and not self.keys_pressed[K_a]:
+                    self.keys_pressed[K_a] = True
+                    self.hero.start_left_move()
+                if e.key == K_d and not self.keys_pressed[K_d]:
+                    self.keys_pressed[K_d] = True
+                    self.hero.start_right_move()
+                
+                # Атака
                 if e.key == K_LEFT:
                     self.hero.start_left_attack()
                 if e.key == K_RIGHT:
                     self.hero.start_right_attack()
             
-            # Обработка отпускания клавиш
+            # Обробка відпускання клавіш
             if e.type == KEYUP:
-                if e.key == K_w:
-                    self.hero.stop_up_run()
-                if e.key == K_s:
-                    self.hero.stop_down_run()
-                if e.key == K_a:
-                    self.hero.stop_left_run()
-                if e.key == K_d:
-                    self.hero.stop_right_run()
+                if e.key == K_w and self.keys_pressed[K_w]:
+                    self.keys_pressed[K_w] = False
+                    self.hero.stop_up_move()
+                if e.key == K_s and self.keys_pressed[K_s]:
+                    self.keys_pressed[K_s] = False
+                    self.hero.stop_down_move()
+                if e.key == K_a and self.keys_pressed[K_a]:
+                    self.keys_pressed[K_a] = False
+                    self.hero.stop_left_move()
+                if e.key == K_d and self.keys_pressed[K_d]:
+                    self.keys_pressed[K_d] = False
+                    self.hero.stop_right_move()
     
     def update(self):
-        """Обновление игрового состояния"""
+        """Оновлення ігрового стану"""
         if self.finish:
             return
         
-        # Обновление игрока
+        # Оновлення гравця
         self.hero.update(self.level.barriers)
         bullet = self.hero.update_animation()
         if bullet:
             self.level.bullets.add(bullet)
         
-        # Обновление пуль
-        self.level.bullets.update()  # <-- Добавляем явное обновление пуль
+        # Оновлення куль
+        self.level.bullets.update()
         
-        # Обновление врагов
+        # Оновлення ворогів
         for enemy in self.level.monsters:
             enemy.update()
             enemy.update_animation()
             
-            # Если враг умер и ещё не создана могила
+            # Якщо ворог помер і ще не створена могила
             if enemy.dead and not self.level.graves:
                 grave, key = enemy.create_grave_and_key()
                 self.level.add_grave_and_key(grave, key)
                 enemy.kill()
         
-        # Проверка столкновения пуль
+        # Перевірка зіткнення куль
         enemy_hit, hit_enemy = self.level.check_bullet_collisions(self.tips)
         
-        # Проверка подбора ключа
+        # Перевірка підбору ключа
         self.level.check_key_collection(self.hero)
         
-        # Проверка столкновения с врагами
+        # Перевірка зіткнення з ворогами
         if pygame.sprite.spritecollideany(self.hero, self.level.monsters):
             self.window.blit(self.lose_fon, (0, 0))
             self.window.blit(self.lose_image, (150, 50))
             self.finish = True
         
-        # Проверка достижения финала (двери)
+        # Перевірка досягнення фіналу (двері)
         if pygame.sprite.collide_rect(self.hero, self.level.final_door):
             if self.level.key_collected:
                 self.window.blit(self.win_fon, (0, 0))
@@ -126,52 +145,52 @@ class Game:
                 self.finish = True
     
     def render(self):
-        """Отрисовка игрового мира"""
+        """Відрисовка ігрового світу"""
         if not self.finish:
-            # Отрисовка фона
+            # Відрисовка фону
             self.window.blit(self.bg, (0, 0))
             
-            # Отрисовка объектов уровня
+            # Відрисовка об'єктів рівня
             self.level.final_door.reset(self.window)
             self.level.tip_1.reset(self.window)
             
-            # Отрисовка могил и ключей, если есть
+            # Відрисовка могил і ключів, якщо є
             if self.level.graves:
                 self.level.graves.draw(self.window)
                 self.level.keys.update()
                 self.level.keys.draw(self.window)
             
-            # Отрисовка игрока
+            # Відрисовка гравця
             self.hero.reset(self.window)
             
-            # Отрисовка барьеров
+            # Відрисовка бар'єрів
             self.level.barriers.draw(self.window)
             
-            # Отрисовка врагов
+            # Відрисовка ворогів
             self.level.monsters.draw(self.window)
             
-            # Отрисовка пуль
+            # Відрисовка куль
             self.level.bullets.draw(self.window)
             
-            # Отрисовка дополнительных подсказок
-            self.level.update_tips(self.tips, self.window)  # <-- Передаем self.window как параметр
+            # Відрисовка додаткових підказок
+            self.level.update_tips(self.tips, self.window)
         
-        # Обновление экрана
+        # Оновлення екрану
         pygame.display.update()
     
     def run(self):
-        """Основной игровой цикл"""
+        """Основний ігровий цикл"""
         while self.running:
-            # Обработка событий
+            # Обробка подій
             self.handle_events()
             
-            # Обновление игрового состояния
+            # Оновлення ігрового стану
             self.update()
             
-            # Отрисовка
+            # Відрисовка
             self.render()
             
-            # Ограничение FPS
+            # Обмеження FPS
             self.clock.tick(FPS)
         
         pygame.quit()

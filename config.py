@@ -1,26 +1,26 @@
-# Файл с константами и конфигурацией
+# Файл з константами та конфігурацією
 
-# Размеры окна
+# Розміри вікна
 WINDOW_WIDTH = 700
 WINDOW_HEIGHT = 500
 
-# Цвета
+# Кольори
 BLACK = (0, 0, 0)
 
-# Скорости движения
+# Швидкості руху
 PLAYER_SPEED = 3
 
-# Игровые настройки
+# Ігрові налаштування
 FPS = 15
 
-# Пути к файлам
+# Шляхи до файлів
 BG_IMAGE = "background/game.png"
 WIN_IMAGE = "background/Winer.png"
 LOSE_IMAGE = "background/Loser.png"
 WIN_FON_IMAGE = "background/dungeon_menu.jpeg"
 LOSE_FON_IMAGE = "background/pause_fon.png"
 
-# Размеры объектов
+# Розміри об'єктів
 PLAYER_SIZE = (36, 52)
 ENEMY_SIZE = (27, 42)
 BULLET_RIGHT_SIZE = (31, 5)
