@@ -1,4 +1,6 @@
 import pygame
+import sys
+from buttons import ImageButton
 from pygame.locals import *
 
 from config import *
@@ -9,8 +11,11 @@ from level import Level
 
 class Game:
     """Головний клас гри"""
-    def __init__(self):
+    def __init__(self, background_music=None):
         pygame.init()
+
+        # Сохраняем ссылку на фоновую музыку
+        self.background_music = background_music
 
         # Створення вікна
         self.window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -61,7 +66,9 @@ class Game:
         """Обробка подій гри"""
         for e in pygame.event.get():
             if e.type == QUIT:
-                self.running = False
+                # Полностью завершаем программу при нажатии на крестик
+                pygame.quit()
+                sys.exit()
 
             # Обробка натискань клавіш
             if e.type == KEYDOWN:
@@ -193,4 +200,6 @@ class Game:
             # Обмеження FPS
             self.clock.tick(FPS)
 
-        pygame.quit()
+        # Удаляем вызов pygame.quit() отсюда, так как он закрывает весь pygame контекст
+        # и делает невозможным возврат в меню
+        return

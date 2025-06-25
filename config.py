@@ -22,6 +22,15 @@ WIN_IMAGE = "background/Winer.png"
 LOSE_IMAGE = "background/Loser.png"
 WIN_FON_IMAGE = "background/dungeon_menu.jpeg"
 LOSE_FON_IMAGE = "background/pause_fon.png"
+MENU_BG = "menu/bg/main_1.jpg"
+MENU_BUTTON_START_PASSIVE = "menu/buttons/start_passive.png"
+MENU_BUTTON_START_ACTIVE = "menu/buttons/start_active.png"
+MENU_BUTTON_EXIT_PASSIVE = "menu/buttons/quit_passive.png"
+MENU_BUTTON_EXIT_ACTIVE = "menu/buttons/quit_active.png"
+MENU_BUTTON_SETTINGS_PASSIVE = "menu/buttons/settings_passive.png"
+MENU_BUTTON_SETTINGS_ACTIVE = "menu/buttons/settings_active.png"
+MENU_TITLE = "menu/Stonegrave_1.png"
+MENU_MUSIC = "menu/main_menu_sound.mp3"  # Путь к фоновой музыке меню
 
 # Розміри об'єктів
 PLAYER_SIZE = (36, 52)
