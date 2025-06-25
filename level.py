@@ -4,13 +4,20 @@ from resources import ResourceManager
 
 class Level:
     """Класс для создания и управления игровым уровнем"""
-    def __init__(self):
-        # Группы спрайтов
-        self.barriers = pygame.sprite.Group()
-        self.bullets = pygame.sprite.Group()
-        self.monsters = pygame.sprite.Group()
-        self.graves = pygame.sprite.Group()
-        self.keys = pygame.sprite.Group()
+    def __init__(self, sprite_manager=None):
+        # Используем переданный sprite_manager или создаем новый
+        if sprite_manager is None:
+            from sprite_manager import SpriteManager
+            self.sprite_manager = SpriteManager()
+        else:
+            self.sprite_manager = sprite_manager
+        
+        # Для обратной совместимости сохраняем ссылки на группы
+        self.barriers = self.sprite_manager.barriers
+        self.bullets = self.sprite_manager.bullets
+        self.monsters = self.sprite_manager.monsters
+        self.graves = self.sprite_manager.graves
+        self.keys = self.sprite_manager.keys
         
         # Объекты уровня
         self.final_door = None
@@ -51,14 +58,18 @@ class Level:
                 barrier_data["pos"][0],
                 barrier_data["pos"][1]
             )
-            self.barriers.add(barrier)
+            self.sprite_manager.add(barrier, 'barriers')
     
     def create_level_objects(self, tips):
         """Создание объектов уровня (двери, подсказки и т.д.)"""
         self.final_door = GameSprite("objects/furniture/door.png", 35, 42, 460, 45)
+        self.sprite_manager.add(self.final_door, 'decoration')
+        
         self.tip_1 = GameSprite("objects/tip_1.png", 350, 30, 10, 350)
         self.tip_2 = GameSprite("objects/tip_2.png", 350, 30, 10, 400)
         self.tip_3 = GameSprite("objects/tip_3.png", 300, 35, 10, 450)
+        
+        # Добавляем подсказки (но не добавляем их в all_sprites, так как они рисуются отдельно)
     
     def update_tips(self, tips, surface):
         """Обновление состояния подсказок"""
@@ -71,7 +82,7 @@ class Level:
     def check_key_collection(self, hero):
         """Проверка подбора ключа"""
         if not self.key_collected and pygame.sprite.spritecollideany(hero, self.keys):
-            self.keys.empty()
+            self.sprite_manager.empty_group('keys')
             self.key_collected = True
             self.tip_2.image = ResourceManager.load_image("objects/tip_2_done.png", (300, 30))
             self.tip_3_visible = True
@@ -84,19 +95,19 @@ class Level:
             # Проверка столкновения с врагами
             enemy_hit = pygame.sprite.spritecollideany(bullet, self.monsters)
             if enemy_hit:
-                bullet.kill()
+                self.sprite_manager.remove(bullet, 'bullets')
                 self.tip_1.image = ResourceManager.load_image("objects/tip_1_done.png", (300, 30))
                 enemy_hit.start_death()
                 return True, enemy_hit
             
             # Проверка столкновения с барьерами
             if pygame.sprite.spritecollideany(bullet, self.barriers):
-                bullet.kill()
+                self.sprite_manager.remove(bullet, 'bullets')
         
         return False, None
     
     def add_grave_and_key(self, grave, key):
         """Добавление могилы и ключа после смерти врага"""
-        self.graves.add(grave)
-        self.keys.add(key)
+        self.sprite_manager.add(grave, 'graves')
+        self.sprite_manager.add(key, 'keys')
         self.tip_2_visible = True

@@ -29,11 +29,11 @@ MENU_BUTTON_EXIT_PASSIVE = "menu/buttons/quit_passive.png"
 MENU_BUTTON_EXIT_ACTIVE = "menu/buttons/quit_active.png"
 MENU_BUTTON_SETTINGS_PASSIVE = "menu/buttons/settings_passive.png"
 MENU_BUTTON_SETTINGS_ACTIVE = "menu/buttons/settings_active.png"
-MENU_TITLE = "menu/Stonegrave_1.png"
-MENU_MUSIC = "menu/main_menu_sound.mp3"  # Путь к фоновой музыке меню
+MENU_TITLE = "menu/Stonegrave.png"
+MENU_MUSIC = "menu/main_menu_sound.mp3"
 
 # Розміри об'єктів
-PLAYER_SIZE = (36, 52)
+PLAYER_SIZE = (1, 3)
 ENEMY_SIZE = (27, 42)
 BULLET_RIGHT_SIZE = (31, 5)
 BULLET_LEFT_SIZE = (31, 5)

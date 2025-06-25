@@ -8,6 +8,8 @@ from resources import ResourceManager, load_player_animations, load_enemy_animat
 from sprites.player import Player
 from sprites.enemy import Enemy
 from level import Level
+from sprite_manager import SpriteManager
+from camera import Camera
 
 class Game:
     """Головний клас гри"""
@@ -20,9 +22,12 @@ class Game:
         # Створення вікна
         self.window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Game")
+        
+        # Создаем камеру с меньшей областью видимости (200x200)
+        self.camera = Camera(WINDOW_WIDTH, WINDOW_HEIGHT, 200, 200)
 
         # Завантаження фонових зображень
-        self.bg = ResourceManager.load_image(BG_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.bg = ResourceManager.load_image(BG_IMAGE)  # Без масштабирования, чтобы сохранить детализацию
         self.win_image = ResourceManager.load_image(WIN_IMAGE, (500, 300))
         self.lose_image = ResourceManager.load_image(LOSE_IMAGE, (500, 300))
         self.win_fon = ResourceManager.load_image(WIN_FON_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -36,19 +41,23 @@ class Game:
         self.enemy_anims = load_enemy_animations()
         self.tips = load_tips()
 
-        # Створення рівня
-        self.level = Level()
+        # Создаем централизованный менеджер спрайтов
+        self.sprite_manager = SpriteManager()
+        
+        # Створення рівня с использованием менеджера спрайтов
+        self.level = Level(self.sprite_manager)
         self.level.create_barriers()
         self.level.create_level_objects(self.tips)
 
         # Створення гравця
         self.hero = Player("Finals/hero/stay/r_stay.png", PLAYER_SIZE[0], PLAYER_SIZE[1], 
                            10, 220, 0, 0, self.player_anims)
+        self.sprite_manager.add(self.hero, 'players')
 
         # Створення ворога
         self.skeleton = Enemy('Finals/enemy/up/u_run_1.png', ENEMY_SIZE[0], ENEMY_SIZE[1], 
                               180, 185, 0, 0, self.enemy_anims)
-        self.level.monsters.add(self.skeleton)
+        self.sprite_manager.add(self.skeleton, 'monsters')
 
         # Ігровий стан
         self.running = True
@@ -61,6 +70,13 @@ class Game:
             CONTROLS['MOVE_LEFT']: False,
             CONTROLS['MOVE_RIGHT']: False
         }
+        
+        # Создаем поверхность для увеличенного изображения
+        self.zoom_surface = pygame.Surface((self.camera.zoom_width, self.camera.zoom_height))
+        self.scaled_surface = pygame.Surface((
+            int(self.camera.zoom_width * self.camera.scale_factor),
+            int(self.camera.zoom_height * self.camera.scale_factor)
+        ))
 
     def handle_events(self):
         """Обробка подій гри"""
@@ -116,21 +132,22 @@ class Game:
         self.hero.update(self.level.barriers)
         bullet = self.hero.update_animation()
         if bullet:
-            self.level.bullets.add(bullet)
+            self.sprite_manager.add(bullet, 'bullets')
 
         # Оновлення куль
-        self.level.bullets.update()
+        # Используем централизованное обновление для пуль
+        self.sprite_manager.bullets.update()
 
         # Оновлення ворогів
-        for enemy in self.level.monsters:
+        for enemy in self.sprite_manager.monsters:
             enemy.update()
             enemy.update_animation()
 
             # Якщо ворог помер і ще не створена могила
-            if enemy.dead and not self.level.graves:
+            if enemy.dead and not self.sprite_manager.graves:
                 grave, key = enemy.create_grave_and_key()
                 self.level.add_grave_and_key(grave, key)
-                enemy.kill()
+                self.sprite_manager.remove(enemy, 'monsters')
 
         # Перевірка зіткнення куль
         enemy_hit, hit_enemy = self.level.check_bullet_collisions(self.tips)
@@ -139,7 +156,7 @@ class Game:
         self.level.check_key_collection(self.hero)
 
         # Перевірка зіткнення з ворогами
-        if pygame.sprite.spritecollideany(self.hero, self.level.monsters):
+        if pygame.sprite.spritecollideany(self.hero, self.sprite_manager.monsters):
             self.window.blit(self.lose_fon, (0, 0))
             self.window.blit(self.lose_image, (150, 50))
             self.finish = True
@@ -154,33 +171,50 @@ class Game:
     def render(self):
         """Відрисовка ігрового світу"""
         if not self.finish:
-            # Відрисовка фону
-            self.window.blit(self.bg, (0, 0))
+            # Очищаем поверхность зума
+            self.zoom_surface.fill(BLACK)
+            
+            # Обновляем камеру, чтобы она следовала за героем
+            self.camera.update(self.hero)
+            
+            # Отрисовка фона с учетом смещения камеры
+            # Получаем прямоугольник для отрисовки фона (относительно камеры)
+            bg_rect = pygame.Rect(0, 0, self.bg.get_width(), self.bg.get_height())
+            bg_draw_rect = self.camera.apply_rect(bg_rect)
+            self.zoom_surface.blit(self.bg, bg_draw_rect)
 
-            # Відрисовка об'єктів рівня
-            self.level.final_door.reset(self.window)
-            self.level.tip_1.reset(self.window)
+            # Отрисовка всех спрайтов с учетом камеры
+            for sprite in self.sprite_manager.all_sprites:
+                # Получаем смещенную позицию для спрайта
+                camera_rect = self.camera.apply(sprite)
+                # Отрисовываем спрайт на смещенной позиции
+                self.zoom_surface.blit(sprite.image, camera_rect)
 
-            # Відрисовка могил і ключів, якщо є
-            if self.level.graves:
-                self.level.graves.draw(self.window)
-                self.level.keys.update()
-                self.level.keys.draw(self.window)
+            # Відрисовка додаткових підказок с учетом камеры
+            if hasattr(self.level, 'tip_1') and self.level.tip_1:
+                tip1_rect = self.camera.apply(self.level.tip_1)
+                self.zoom_surface.blit(self.level.tip_1.image, tip1_rect)
+            
+            if self.level.tip_2_visible and hasattr(self.level, 'tip_2') and self.level.tip_2:
+                tip2_rect = self.camera.apply(self.level.tip_2)
+                self.zoom_surface.blit(self.level.tip_2.image, tip2_rect)
+            
+            if self.level.tip_3_visible and hasattr(self.level, 'tip_3') and self.level.tip_3:
+                tip3_rect = self.camera.apply(self.level.tip_3)
+                self.zoom_surface.blit(self.level.tip_3.image, tip3_rect)
 
-            # Відрисовка гравця
-            self.hero.reset(self.window)
-
-            # Відрисовка бар'єрів
-            self.level.barriers.draw(self.window)
-
-            # Відрисовка ворогів
-            self.level.monsters.draw(self.window)
-
-            # Відрисовка куль
-            self.level.bullets.draw(self.window)
-
-            # Відрисовка додаткових підказок
-            self.level.update_tips(self.tips, self.window)
+            # Масштабируем zoom_surface до размеров экрана
+            pygame.transform.scale(self.zoom_surface, 
+                                  (int(WINDOW_WIDTH), int(WINDOW_HEIGHT)), 
+                                  self.window)
+        else:
+            # Отрисовка экрана завершения
+            if pygame.sprite.collide_rect(self.hero, self.level.final_door) and self.level.key_collected:
+                self.window.blit(self.win_fon, (0, 0))
+                self.window.blit(self.win_image, (150, 50))
+            else:
+                self.window.blit(self.lose_fon, (0, 0))
+                self.window.blit(self.lose_image, (150, 50))
 
         # Оновлення екрану
         pygame.display.update()
@@ -191,7 +225,7 @@ class Game:
             # Обробка подій
             self.handle_events()
 
-            # Оновлення ігрового стану
+            # Обновление игрового состояния
             self.update()
 
             # Відрисовка
@@ -199,7 +233,5 @@ class Game:
 
             # Обмеження FPS
             self.clock.tick(FPS)
-
-        # Удаляем вызов pygame.quit() отсюда, так как он закрывает весь pygame контекст
-        # и делает невозможным возврат в меню
+       
         return
