@@ -98,13 +98,11 @@ class Enemy(GameSprite):
             self.image = pygame.transform.scale(anim_frame, anim_frame.get_size())
     
     def create_grave_and_key(self):
-        """Создает могилу и ключ после смерти врага"""
+        """Создает только ключ после смерти врага (без могилы)"""
         from sprites.base import GameSprite
         
-        grave = Enemy('Finals/enemy/death/death_5.png', 27, 28, 
-                      self.rect.x, self.rect.y + 18, 0, 0, self.animations)
-        grave.dead = True
+        # Создаем ключ на месте умершего скелета
+        key = GameSprite("objects/key.png", 20, 20, self.rect.x + 3, self.rect.y + 19)
         
-        key = GameSprite("objects/key.png", 16, 16, self.rect.x + 3, self.rect.y + 24)
-        
-        return grave, key
+        # Возвращаем None вместо могилы и ключ
+        return None, key

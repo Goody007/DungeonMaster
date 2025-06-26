@@ -23,11 +23,18 @@ class Game:
         self.window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Game")
         
-        # Создаем камеру с меньшей областью видимости (200x200)
-        self.camera = Camera(WINDOW_WIDTH, WINDOW_HEIGHT, 200, 200)
-
         # Завантаження фонових зображень
         self.bg = ResourceManager.load_image(BG_IMAGE)  # Без масштабирования, чтобы сохранить детализацию
+        
+        # Устанавливаем размеры игрового мира на основе фона
+        world_width = self.bg.get_width()
+        world_height = self.bg.get_height()
+        
+        # Создаем камеру с меньшей областью видимости и устанавливаем размеры мира
+        self.camera = Camera(WINDOW_WIDTH, WINDOW_HEIGHT, 450, 400)
+        self.camera.set_world_size(world_width, world_height)
+        
+        # Остальные изображения
         self.win_image = ResourceManager.load_image(WIN_IMAGE, (500, 300))
         self.lose_image = ResourceManager.load_image(LOSE_IMAGE, (500, 300))
         self.win_fon = ResourceManager.load_image(WIN_FON_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -146,8 +153,14 @@ class Game:
             # Якщо ворог помер і ще не створена могила
             if enemy.dead and not self.sprite_manager.graves:
                 grave, key = enemy.create_grave_and_key()
-                self.level.add_grave_and_key(grave, key)
-                self.sprite_manager.remove(enemy, 'monsters')
+                # Добавляем проверку на наличие могилы
+                if grave:
+                    self.level.add_grave_and_key(grave, key)
+                else:
+                    # Добавляем только ключ, без могилы
+                    self.sprite_manager.add(key, 'keys')
+                # Полностью удаляем enemy из всех групп
+                self.sprite_manager.remove(enemy)  # без аргументов удалит из всех групп
 
         # Перевірка зіткнення куль
         enemy_hit, hit_enemy = self.level.check_bullet_collisions(self.tips)
@@ -178,13 +191,16 @@ class Game:
             self.camera.update(self.hero)
             
             # Отрисовка фона с учетом смещения камеры
-            # Получаем прямоугольник для отрисовки фона (относительно камеры)
             bg_rect = pygame.Rect(0, 0, self.bg.get_width(), self.bg.get_height())
             bg_draw_rect = self.camera.apply_rect(bg_rect)
             self.zoom_surface.blit(self.bg, bg_draw_rect)
-
-            # Отрисовка всех спрайтов с учетом камеры
-            for sprite in self.sprite_manager.all_sprites:
+            
+            # Сортируем спрайты по Y-координате перед отрисовкой
+            # Это обеспечит правильный порядок отображения по глубине
+            sorted_sprites = sorted(self.sprite_manager.all_sprites, key=lambda sprite: sprite.rect.bottom)
+            
+            # Отрисовка всех спрайтов с учетом камеры и в правильном порядке
+            for sprite in sorted_sprites:
                 # Получаем смещенную позицию для спрайта
                 camera_rect = self.camera.apply(sprite)
                 # Отрисовываем спрайт на смещенной позиции
@@ -205,8 +221,18 @@ class Game:
 
             # Масштабируем zoom_surface до размеров экрана
             pygame.transform.scale(self.zoom_surface, 
-                                  (int(WINDOW_WIDTH), int(WINDOW_HEIGHT)), 
-                                  self.window)
+                                (int(WINDOW_WIDTH), int(WINDOW_HEIGHT)), 
+                                self.window)
+            
+            # Опционально: нарисовать рамку для отладки коллизий
+            if DEBUG_COLLISIONS:
+                for barrier in self.sprite_manager.barriers:
+                    barrier_rect = self.camera.apply(barrier)
+                    pygame.draw.rect(self.window, (255, 0, 0), barrier_rect, 1)
+                
+                # Отображаем рамку игрока для отладки
+                player_rect = self.camera.apply(self.hero)
+                pygame.draw.rect(self.window, (0, 255, 0), player_rect, 1)
         else:
             # Отрисовка экрана завершения
             if pygame.sprite.collide_rect(self.hero, self.level.final_door) and self.level.key_collected:

@@ -15,6 +15,7 @@ PLAYER_SPEED = 12
 
 # Ігрові налаштування
 FPS = 15
+DEBUG_COLLISIONS = False  # Set to True to visualize barrier collisions
 
 # Шляхи до файлів
 BG_IMAGE = "background/game.png"

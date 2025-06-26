@@ -3,6 +3,8 @@ import sys
 from menu import Menu
 
 def main():
+    pygame.init()
+    
     try:
         menu = Menu()
         menu.run()
