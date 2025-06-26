@@ -1,7 +1,7 @@
 import pygame
 
 class Camera:
-    def __init__(self, width, height, zoom_width=200, zoom_height=200):
+    def __init__(self, width, height, zoom_width=450, zoom_height=400):
         # Размеры окна камеры
         self.width = width
         self.height = height
@@ -19,11 +19,27 @@ class Camera:
         
         # Масштабирование (увеличение) зума на экран
         self.scale_factor = min(width / zoom_width, height / zoom_height)
+        
+        # Добавляем ограничения для камеры
+        self.world_width = 0   # Будет установлено позже
+        self.world_height = 0  # Будет установлено позже
+
+    def set_world_size(self, width, height):
+        """Устанавливает размеры мира для ограничения камеры"""
+        self.world_width = width
+        self.world_height = height
 
     def update(self, target):
-        # Центрирование камеры на цель без сглаживания для более точного следования
+        # Центрирование камеры на цель
         self.offset_x = target.rect.centerx - self.zoom_width // 2
         self.offset_y = target.rect.centery - self.zoom_height // 2
+        
+        # Ограничиваем смещение камеры мировыми границами, если они установлены
+        if self.world_width > 0:
+            self.offset_x = max(0, min(self.offset_x, self.world_width - self.zoom_width))
+        
+        if self.world_height > 0:
+            self.offset_y = max(0, min(self.offset_y, self.world_height - self.zoom_height))
 
     def apply(self, entity):
         # Перемещение объекта относительно камеры
@@ -42,3 +58,7 @@ class Camera:
             rect.width,
             rect.height
         )
+        
+    def get_offset(self):
+        """Возвращает текущее смещение камеры"""
+        return (self.offset_x, self.offset_y)

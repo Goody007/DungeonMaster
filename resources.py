@@ -138,9 +138,9 @@ def load_enemy_animations():
 # Завантаження підказок
 def load_tips():
     return {
-        'tip_1': ResourceManager.load_image("objects/tip_1.png", (350, 30)),
-        'tip_2': ResourceManager.load_image("objects/tip_2.png", (350, 30)),
-        'tip_3': ResourceManager.load_image("objects/tip_3.png", (300, 35)),
-        'tip_1_done': ResourceManager.load_image("objects/tip_1_done.png", (300, 30)),
-        'tip_2_done': ResourceManager.load_image("objects/tip_2_done.png", (300, 30))
+        'tip_1': ResourceManager.load_image("background/barrier.png", (350, 30)),
+        'tip_2': ResourceManager.load_image("background/barrier.png", (350, 30)),
+        'tip_3': ResourceManager.load_image("background/barrier.png", (300, 35)),
+        'tip_1_done': ResourceManager.load_image("background/barrier.png", (300, 30)),
+        'tip_2_done': ResourceManager.load_image("background/barrier.png", (300, 30))
     }

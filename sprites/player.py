@@ -68,6 +68,10 @@ class Player(GameSprite):
         """Оновлення позиції гравця з урахуванням перешкод"""
         self.update_movement()
         
+        # Store original position for restoring if collision occurs
+        original_x = self.rect.x
+        original_y = self.rect.y
+        
         # Горизонтальний рух
         self.rect.x += self.x_speed
         
@@ -78,15 +82,23 @@ class Player(GameSprite):
             self.rect.right = pygame.display.get_surface().get_width()
         
         # Перевірка зіткнень з перешкодами по горизонталі
+        collisions = False
         platforms_touched = pygame.sprite.spritecollide(self, barriers, False)
         if self.x_speed > 0:  # рух вправо
             for p in platforms_touched:
                 self.rect.right = min(self.rect.right, p.rect.left)
+                collisions = True
         if self.x_speed < 0:  # рух вліво
             for p in platforms_touched:
                 self.rect.left = max(self.rect.left, p.rect.right)
+                collisions = True
+                
+        # If there was a collision, stop horizontal movement
+        if collisions:
+            self.x_speed = 0
         
-        # Вертикальний рух
+        # Вертикальний рух - проверяем отдельно после горизонтального
+        original_y = self.rect.y  # Сохраняем позицию после горизонтальных коррекций
         self.rect.y += self.y_speed
         
         # Перевірка меж екрану
@@ -96,19 +108,26 @@ class Player(GameSprite):
             self.rect.bottom = pygame.display.get_surface().get_height()
         
         # Перевірка зіткнень з перешкодами по вертикалі
+        collisions = False
         platforms_touched = pygame.sprite.spritecollide(self, barriers, False)
         if self.y_speed > 0:  # рух вниз
             for p in platforms_touched:
                 self.rect.bottom = min(self.rect.bottom, p.rect.top)
+                collisions = True
         if self.y_speed < 0:  # рух вгору
             for p in platforms_touched:
                 self.rect.top = max(self.rect.top, p.rect.bottom)
+                collisions = True
+                
+        # If there was a collision, stop vertical movement
+        if collisions:
+            self.y_speed = 0
     
     def fire_right(self):
         """Постріл вправо"""
         bullet = Bullet("objects/arrow_r.png", 31, 5, 
                        self.rect.x + self.rect.width, 
-                       (self.rect.y + self.rect.height // 2) - 7, 
+                       (self.rect.y + self.rect.height // 2) + 17, 
                        18)
         return bullet
     
@@ -116,7 +135,7 @@ class Player(GameSprite):
         """Постріл вліво"""
         bullet = Bullet("objects/arrow_l.png", 31, 5, 
                        (self.rect.x + self.rect.width) - 50, 
-                       (self.rect.y + self.rect.height // 2) - 7, 
+                       (self.rect.y + self.rect.height // 2) + 17, 
                        -18)
         return bullet
     
