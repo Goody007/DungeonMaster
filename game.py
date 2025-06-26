@@ -31,7 +31,7 @@ class Game:
         world_height = self.bg.get_height()
         
         # Создаем камеру с меньшей областью видимости и устанавливаем размеры мира
-        self.camera = Camera(WINDOW_WIDTH, WINDOW_HEIGHT, 450, 400)
+        self.camera = Camera(WINDOW_WIDTH, WINDOW_HEIGHT, 500, 350)
         self.camera.set_world_size(world_width, world_height)
         
         # Остальные изображения
