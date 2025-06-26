@@ -29,7 +29,7 @@ MENU_BUTTON_EXIT_PASSIVE = "menu/buttons/quit_passive.png"
 MENU_BUTTON_EXIT_ACTIVE = "menu/buttons/quit_active.png"
 MENU_BUTTON_SETTINGS_PASSIVE = "menu/buttons/settings_passive.png"
 MENU_BUTTON_SETTINGS_ACTIVE = "menu/buttons/settings_active.png"
-MENU_TITLE = "menu/Stonegrave.png"
+MENU_TITLE = "menu/DungeonMaster_480.png"
 MENU_MUSIC = "menu/main_menu_sound.mp3"
 
 # Розміри об'єктів

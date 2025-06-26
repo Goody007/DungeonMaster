@@ -19,6 +19,7 @@ class Menu:
 
         # Load background and title images
         self.background = ResourceManager.load_image(MENU_BG, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.background.set_alpha(64)
         self.title_menu = ResourceManager.load_image(MENU_TITLE)
         
         # Загрузка и воспроизведение фоновой музыки
@@ -28,11 +29,11 @@ class Menu:
 
         # Create buttons с явно заданной громкостью звука (например, 0.2)
         self.start_button = ImageButton(
-            (WINDOW_WIDTH / 2) - 100, 200, 200, 65,
+            (WINDOW_WIDTH / 2) - 100, 250, 200, 65,
             MENU_BUTTON_START_PASSIVE, MENU_BUTTON_START_ACTIVE, "menu/click.mp3", 0.2
         )
         self.quit_button = ImageButton(
-            (WINDOW_WIDTH / 2) - 100, 300, 200, 65,
+            (WINDOW_WIDTH / 2) - 100, 350, 200, 65,
             MENU_BUTTON_EXIT_PASSIVE, MENU_BUTTON_EXIT_ACTIVE, "menu/click.mp3", 0.2
         )
 
