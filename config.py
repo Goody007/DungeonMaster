@@ -11,7 +11,7 @@ WINDOW_HEIGHT = 500
 BLACK = (0, 0, 0)
 
 # Швидкості руху
-PLAYER_SPEED = 12
+PLAYER_SPEED = 16
 
 # Ігрові налаштування
 FPS = 15
