@@ -8,6 +8,7 @@ class Enemy(GameSprite):
         self.speed_x = speed_x
         self.speed_y = speed_y
         self.animations = animations
+        self.game = None  # Ссылка на игру
         
         # Состояния врага
         self.e_left = False

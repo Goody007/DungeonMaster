@@ -93,8 +93,7 @@ class Menu:
         """Quit the game"""
         self.running = False  # Устанавливаем флаг завершения
         self.background_music.stop()  # Останавливаем музыку перед выходом
-        pygame.quit()
-        sys.exit()
+        
 
     def run(self):
         """Main menu loop"""

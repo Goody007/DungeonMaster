@@ -11,6 +11,7 @@ class Player(GameSprite):
         self.x_speed = x_speed
         self.y_speed = y_speed
         self.animations = animations
+        self.game = None  # Ссылка на игру
         
         # Стани руху (тепер незалежні)
         self.moving_left = False
@@ -124,6 +125,9 @@ class Player(GameSprite):
         """Оновлення анімації гравця"""
         # Анімація атаки має пріоритет
         if self.attacking_left:
+            # Создаем стрелу на 9-м кадре анимации
+            # Звук натяжения лука будет проигрываться в Game при attack_animation_index == 0
+            # Звук выстрела будет проигрываться в Game при attack_animation_index == 9
             if self.attack_animation_index == 9:
                 bullet = self.fire_left()
                 self.attack_animation_index += 1
@@ -140,6 +144,7 @@ class Player(GameSprite):
             return None
         
         if self.attacking_right:
+            # Аналогично для атаки вправо
             if self.attack_animation_index == 9:
                 bullet = self.fire_right()
                 self.attack_animation_index += 1

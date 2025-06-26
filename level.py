@@ -95,7 +95,7 @@ class Level:
         
         return False, None
     
-    def add_grave_and_key(self, grave, key):
+    def add_grave_and_key(self, grave, key, game=None):
         """Добавление могилы и ключа после смерти врага"""
         self.graves.add(grave)
         self.keys.add(key)
