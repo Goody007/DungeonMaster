@@ -156,10 +156,15 @@ class Game:
             self.window.blit(self.lose_fon, (0, 0))
             self.window.blit(self.lose_image, (150, 50))
             self.finish = True
+            return  # Прерываем метод, чтобы не выполнять остальные проверки
 
         # Перевірка досягнення фіналу (двері)
         if pygame.sprite.collide_rect(self.hero, self.level.final_door):
             if self.level.key_collected:
+                self.quit_button = ImageButton(
+                    (WINDOW_WIDTH / 2) - 100, 350, 200, 65,
+                    MENU_BUTTON_EXIT_PASSIVE, MENU_BUTTON_EXIT_ACTIVE, "menu/click.mp3", 0.2
+                )
                 self.window.blit(self.win_fon, (0, 0))
                 self.window.blit(self.win_image, (150, 50))
                 self.finish = True
