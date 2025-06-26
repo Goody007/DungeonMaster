@@ -6,7 +6,10 @@ from config import *
 from resources import ResourceManager, load_player_animations, load_enemy_animations, load_tips
 from sprites.player import Player
 from sprites.enemy import Enemy
+from sprites.base import GameSprite
 from level import Level
+from menu import *
+from buttons import ImageButton
 
 class Game:
     """Головний клас гри"""
@@ -106,6 +109,13 @@ class Game:
                     self.keys_pressed[CONTROLS['MOVE_RIGHT']] = False
                     self.hero.stop_right_move()
 
+            if self.finish and self.quit_button:
+                if e.type == MOUSEBUTTONDOWN:
+                    self.quit_button.handle_event(e)
+                elif e.type == USEREVENT and hasattr(e, 'button') and e.button == self.quit_button:
+                    pygame.quit()
+                    sys.exit()
+
     def update(self):
         """Оновлення ігрового стану"""
         if self.finish:
@@ -139,6 +149,10 @@ class Game:
 
         # Перевірка зіткнення з ворогами
         if pygame.sprite.spritecollideany(self.hero, self.level.monsters):
+            self.quit_button = ImageButton(
+                (WINDOW_WIDTH / 2) - 100, 350, 200, 65,
+                MENU_BUTTON_EXIT_PASSIVE, MENU_BUTTON_EXIT_ACTIVE, "menu/click.mp3", 0.2
+            )
             self.window.blit(self.lose_fon, (0, 0))
             self.window.blit(self.lose_image, (150, 50))
             self.finish = True
@@ -180,6 +194,14 @@ class Game:
 
             # Відрисовка додаткових підказок
             self.level.update_tips(self.tips, self.window)
+
+        if self.finish:
+            if self.quit_button:
+                mouse_pos = pygame.mouse.get_pos()
+                self.quit_button.check_hover(mouse_pos)
+                self.quit_button.draw(self.window)
+            pygame.display.update()
+            return
 
         # Оновлення екрану
         pygame.display.update()

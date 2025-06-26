@@ -18,8 +18,8 @@ FPS = 15
 
 # Шляхи до файлів
 BG_IMAGE = "background/game.png"
-WIN_IMAGE = "background/Winer.png"
-LOSE_IMAGE = "background/Loser.png"
+WIN_IMAGE = "background/Winer_1.png"
+LOSE_IMAGE = "background/Loser_1.png"
 WIN_FON_IMAGE = "background/dungeon_menu.jpeg"
 LOSE_FON_IMAGE = "background/pause_fon.png"
 
