@@ -2,15 +2,13 @@ import pygame
 from sprites.base import GameSprite
 
 class Enemy(GameSprite):
-    """Класс врага"""
     def __init__(self, picture, width, height, x, y, speed_x, speed_y, animations):
         super().__init__(picture, width, height, x, y)
         self.speed_x = speed_x
         self.speed_y = speed_y
         self.animations = animations
-        self.game = None  # Ссылка на игру
+        self.game = None
         
-        # Состояния врага
         self.e_left = False
         self.e_right = False
         self.e_up = False
@@ -18,21 +16,16 @@ class Enemy(GameSprite):
         self.dying = False
         self.dead = False
         
-        # Индекс анимации
         self.anim_index = 0
         self.death_index = 0
     
     def update(self):
-        """Обновление позиции и состояния врага"""
-        # Если враг умирает или мертв, не двигаем его
         if self.dying or self.dead:
             return
             
-        # Обновление позиции
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
         
-        # Логика патрулирования (по прямоугольному маршруту)
         if self.rect.y <= 185:
             self.speed_y = 0
             self.speed_x = 2
@@ -58,15 +51,12 @@ class Enemy(GameSprite):
             self.e_up = True
     
     def start_death(self):
-        """Начать анимацию смерти"""
         self.dying = True
         self.speed_x = 0
         self.speed_y = 0
         self.death_index = 0
     
     def update_animation(self):
-        """Обновление анимации врага"""
-        # Анимация смерти
         if self.dying:
             if self.death_index < len(self.animations['death']) - 1:
                 self.death_index += 1
@@ -77,7 +67,6 @@ class Enemy(GameSprite):
                 self.dying = False
             return
         
-        # Анимация движения
         if self.e_left:
             self.anim_index = (self.anim_index + 1) % 9
             anim_frame = self.animations['run_left'][self.anim_index]
@@ -99,7 +88,6 @@ class Enemy(GameSprite):
             self.image = pygame.transform.scale(anim_frame, anim_frame.get_size())
     
     def create_grave_and_key(self):
-        """Создает могилу и ключ после смерти врага"""
         from sprites.base import GameSprite
         
         grave = Enemy('Finals/enemy/death/death_5.png', 27, 28, 

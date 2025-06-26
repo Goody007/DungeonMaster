@@ -1,11 +1,8 @@
 import pygame
 
 class ResourceManager:
-    """Клас для завантаження та керування ігровими ресурсами"""
-
     @staticmethod
     def load_image(path, size=None):
-        """Завантаження зображення з опціональним масштабуванням"""
         image = pygame.image.load(path)
         if size:
             return pygame.transform.scale(image, size)
@@ -13,14 +10,11 @@ class ResourceManager:
 
     @staticmethod
     def load_animation(paths, sizes=None):
-        """Завантаження списку зображень для анімації"""
         if sizes:
             return [pygame.transform.scale(pygame.image.load(path), sizes) for path in paths]
         return [pygame.image.load(path) for path in paths]
 
-# Анімації гравця
 def load_player_animations():
-    # Анімації бігу
     run_left = ResourceManager.load_animation([
         "Finals/hero/run/l_run_1.png", "Finals/hero/run/l_run_2.png", 
         "Finals/hero/run/l_run_3.png", "Finals/hero/run/l_run_4.png",
@@ -49,7 +43,6 @@ def load_player_animations():
         "Finals/hero/run/d_run_7.png", "Finals/hero/run/d_run_8.png"
     ])
 
-    # Анімації атаки
     attack_right = ResourceManager.load_animation([
         "Finals/hero/attack/r_attack_1.png", "Finals/hero/attack/r_attack_2.png", 
         "Finals/hero/attack/r_attack_3.png", "Finals/hero/attack/r_attack_4.png",
@@ -85,9 +78,7 @@ def load_player_animations():
         }
     }
 
-# Анімації ворогів
 def load_enemy_animations():
-    # Анімації руху
     run_left = ResourceManager.load_animation([
         "Finals/enemy/left/l_run_1.png", "Finals/enemy/left/l_run_2.png", 
         "Finals/enemy/left/l_run_3.png", "Finals/enemy/left/l_run_4.png",
@@ -120,7 +111,6 @@ def load_enemy_animations():
         "Finals/enemy/down/d_run_9.png"
     ])
 
-    # Анімація смерті
     death = ResourceManager.load_animation([
         "Finals/enemy/death/death_1.png", "Finals/enemy/death/death_2.png",
         "Finals/enemy/death/death_3.png", "Finals/enemy/death/death_4.png",
@@ -135,7 +125,6 @@ def load_enemy_animations():
         'death': death
     }
 
-# Завантаження підказок
 def load_tips():
     return {
         'tip_1': ResourceManager.load_image("objects/tip_1.png", (350, 30)),

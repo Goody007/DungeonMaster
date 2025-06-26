@@ -1,29 +1,21 @@
 import pygame
 from pygame.locals import *
 
-# Файл з константами та конфігурацією
-
-# Розміри вікна
 WINDOW_WIDTH = 700
 WINDOW_HEIGHT = 500
 
-# Кольори
 BLACK = (0, 0, 0)
 
-# Швидкості руху
 PLAYER_SPEED = 16
 
-# Ігрові налаштування
 FPS = 15
 
-# Шляхи до файлів
 BG_IMAGE = "background/game.png"
 WIN_IMAGE = "background/Winer_1.png"
 LOSE_IMAGE = "background/Loser_1.png"
 WIN_FON_IMAGE = "background/dungeon_menu.jpeg"
 LOSE_FON_IMAGE = "background/pause_fon.png"
 
-# Menu assets
 MENU_BG = "menu/bg/main_1.jpg"
 MENU_BUTTON_START_PASSIVE = "menu/buttons/start_passive.png"
 MENU_BUTTON_START_ACTIVE = "menu/buttons/start_active.png"
@@ -34,13 +26,11 @@ MENU_BUTTON_SETTINGS_ACTIVE = "menu/buttons/settings_active.png"
 MENU_TITLE = "menu/DungeonMaster_480.png"
 MENU_MUSIC = "menu/main_menu_sound.mp3"
 
-# Розміри об'єктів (STABLE SIZES - PROPER HITBOXES)
 PLAYER_SIZE = (36, 52)
 ENEMY_SIZE = (27, 42)
 BULLET_RIGHT_SIZE = (31, 5)
 BULLET_LEFT_SIZE = (31, 5)
 
-# Керування
 CONTROLS = {
     'MOVE_UP': K_w,
     'MOVE_DOWN': K_s,
